@@ -12,7 +12,14 @@
 (set-key! (env :bing))
 
 (defn save-to-recent [term]
-  term)
+  (db/insert term))
+
+(defn get-recent []
+  (let [results (db/find 10)
+        dateformat (java.text.SimpleDateFormat. "MMMM dd, yyyy HH:mm:ss aa")]
+    ;; convert Date objects to string for json
+    ;; also don't show object id
+    (map #(select-keys (assoc % :timestamp (.format dateformat (% :timestamp))) [:timestamp :search]) results)))
 
 (def not-nil? (complement nil?))
 
@@ -27,7 +34,7 @@
          images)))
 
 (defn route-recent []
-  {:status 200 :headers {"Content-Type" "application/json"} :body (json/write-str "")})
+  {:status 200 :headers {"Content-Type" "application/json"} :body (json/write-str {:recent (get-recent)})})
 
 (defn route-search
   [term offset]
@@ -36,7 +43,7 @@
         result (extract-image-data (search-resp :result))
         resp {:headers {"Content-Type" "application/json"}}
         resp (if (not-nil? result)
-                    (assoc resp :body {:images result} :status 200)
+                    (assoc resp :body {:query term :pagination offset :images result} :status 200)
                     (assoc resp :body {:error ((search-resp :response) :body)} :status 500))]
     (save-to-recent term)
     (assoc resp :body (json/write-str (resp :body)))))
