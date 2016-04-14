@@ -8,7 +8,8 @@
                  [http-kit "2.2.0-alpha1"]
                  [environ "1.0.2"]
                  [selmer "1.0.4"]
-                 [bing-search "0.1.0-SNAPSHOT"]
+                 [com.novemberain/monger "3.0.2"]
+                 [bing-search "0.1.0"]
                  [org.clojure/data.json "0.2.6"]
                  [ring/ring-defaults "0.2.0"]
 
